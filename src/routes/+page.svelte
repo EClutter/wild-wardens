@@ -41,7 +41,7 @@
 			if ($warden) {
 				if ($warden.id !== undefined) {
 					db.wardens.update($warden.id, {
-						credits: $warden.credits + 1,
+						credits: $warden.credits + 10,
 						experience: $warden.experience + 1
 					});
 				} else {
@@ -52,6 +52,37 @@
 			}
 		} else {
 			console.error('Creature ID is undefined');
+		}
+	}
+
+	function buyCreature(creatureId: number, price: number) {
+		console.log('Buying creature', creatureId);
+		// check if the warden has enough credits
+		if ($warden && $warden.id && $warden.credits >= price) {
+			// update the warden's credits and experience + 10
+			db.wardens.update($warden.id, {
+				credits: $warden.credits - price,
+				experience: $warden.experience + 10
+			});
+			// add the creature to the warden's sanctuary by looking up the creature in the creature shop and then adding it to the creatures table
+			db.creatureShop.get(creatureId).then((creature) => {
+				if (creature) {
+					//Add the creature to the sanctuary
+					console.log('Adding creature to sanctuary', creature);
+					db.creatures.add({
+						name: creature.name,
+						feed: creature.feed,
+						description: creature.description,
+						type: creature.type,
+						lastFeedTime: new Date()
+					});
+					console.log('Creature added to sanctuary', creature);
+				} else {
+					console.error('Creature not found in shop');
+				}
+			});
+		} else {
+			console.error('Not enough credits');
 		}
 	}
 </script>
@@ -118,7 +149,7 @@
 				</div>
 				<button
 					class="rounded-lg bg-blue-500 px-4 py-2 text-white"
-					onclick={() => console.log('Buy', creature.id)}
+					onclick={() => creature.id !== undefined && buyCreature(creature.id, creature.price)}
 				>
 					Buy
 				</button>
