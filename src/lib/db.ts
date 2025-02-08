@@ -16,15 +16,25 @@ interface Creature {
   lastFeedTime: Date;
 }
 
+interface CreatureShop {
+  id?: number; 
+  name: string;
+  type: string;
+  description: string;
+  price: number;
+  feed: number;
+}
+
 class WardensDatabase extends Dexie {
   wardens!: Table<Warden, number>;
   creatures!: Table<Creature, number>;
-
+  creatureShop!: Table<CreatureShop, number>;
   constructor() {
     super('WardensDatabase');
     this.version(1).stores({
       wardens: '++id, name, experience, credits',
-      creatures: '++id, lastFeedTime'
+      creatures: '++id, lastFeedTime',
+      creatureShop: '++id, name, type, description, price, feed'
     });
   }
 }
@@ -47,6 +57,29 @@ db.on('populate', async () => {
       description: 'the default creature guarding your sanctuary',
       feed: 100,
       lastFeedTime: new Date()
+    }
+  ]);
+  await db.creatureShop.bulkAdd([
+    {
+      name: 'dragon',
+      type: 'mythical',
+      description: 'a mythical creature that breathes fire',
+      price: 100,
+      feed: 100
+    },
+    {
+      name: 'phoenix',
+      type: 'mythical',
+      description: 'a mythical creature that rises from the ashes',
+      price: 200,
+      feed: 200
+    },
+    {
+      name: 'unicorn',
+      type: 'mythical',
+      description: 'a mythical creature that brings good luck',
+      price: 300,
+      feed: 300
     }
   ]);
 });

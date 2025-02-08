@@ -1,6 +1,9 @@
 <script lang="ts">
-	import db, { type Creature, type Warden } from '$lib/db';
+	import ShopModal from '$lib/components/ShopModal.svelte';
+	import db from '$lib/db';
 	import { liveQuery } from 'dexie';
+
+	let showShopModal = $state(false);
 
 	let warden = $derived(
 		liveQuery(async () => {
@@ -10,6 +13,11 @@
 	let creatures = $derived(
 		liveQuery(async () => {
 			return await db.creatures.orderBy('lastFeedTime').toArray();
+		})
+	);
+	let creatureShop = $derived(
+		liveQuery(async () => {
+			return await db.creatureShop.orderBy('price').toArray();
 		})
 	);
 	let now = $state(Date.now());
@@ -48,7 +56,7 @@
 	}
 </script>
 
-<main class="flex h-screen flex-col items-center justify-center">
+<main class="m-8 flex h-screen flex-col items-center p-8">
 	<h1 class="text-4xl font-bold">Wild Wardens</h1>
 	<p class="text-lg">
 		wild wardens is a real-time mythical creature sanctuary management game where you step into the
@@ -61,32 +69,84 @@
 					<h2 class="text-xl font-bold">{$warden.name}</h2>
 					<p class="text-sm">Credits: {$warden.credits}</p>
 					<p class="text-sm">Experience: {$warden.experience}</p>
+					<button
+						class="rounded-lg bg-blue-500 px-4 py-2 text-white"
+						onclick={() => (showShopModal = true)}
+					>
+						Shop
+					</button>
 				</div>
 			</div>
 		</div>
 	{/if}
 	{#if $creatures}
-		{#each $creatures as creature}
+		<div class="grid grid-cols-2">
+			{#each $creatures as creature}
+				<div class="my-2 flex w-full items-center justify-between rounded-lg bg-gray-100 p-4">
+					<div>
+						<h2 class="text-xl font-bold">{creature.name}</h2>
+						<p class="text-sm">
+							Hunger: {Math.max(
+								0,
+								creature.feed - Math.floor((now - new Date(creature.lastFeedTime).getTime()) / 1000)
+							)} seconds
+						</p>
+						<p class="text-sm">
+							Last fed: {new Date(creature.lastFeedTime).toLocaleString()}
+						</p>
+					</div>
+					<button
+						class="rounded-lg bg-blue-500 px-4 py-2 text-white"
+						onclick={() => creature.id !== undefined && feed(creature.id)}
+					>
+						Feed
+					</button>
+				</div>
+			{/each}
+		</div>
+	{/if}
+
+	<ShopModal bind:showShopModal>
+		{#snippet header()}
+			<h2>Creature Shop</h2>
+		{/snippet}
+		{#each $creatureShop as creature}
 			<div class="my-2 flex w-full items-center justify-between rounded-lg bg-gray-100 p-4">
 				<div>
 					<h2 class="text-xl font-bold">{creature.name}</h2>
-					<p class="text-sm">
-						Hunger: {Math.max(
-							0,
-							creature.feed - Math.floor((now - new Date(creature.lastFeedTime).getTime()) / 1000)
-						)} seconds
-					</p>
-					<p class="text-sm">
-						Last fed: {new Date(creature.lastFeedTime).toLocaleString()}
-					</p>
+					<p class="text-sm">Price: {creature.price} credits</p>
 				</div>
 				<button
 					class="rounded-lg bg-blue-500 px-4 py-2 text-white"
-					onclick={() => creature.id !== undefined && feed(creature.id)}
+					onclick={() => console.log('Buy', creature.id)}
 				>
-					Feed
+					Buy
 				</button>
 			</div>
 		{/each}
-	{/if}
+	</ShopModal>
 </main>
+
+<style>
+	/* Center the ShopModal */
+	:global(.modal-container) {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		background-color: white;
+		padding: 2rem;
+		border-radius: 0.5rem;
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		z-index: 1000;
+	}
+	:global(.modal-overlay) {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0, 0, 0, 0.5);
+		z-index: 999;
+	}
+</style>
