@@ -65,7 +65,7 @@ db.on('populate', async () => {
       type: 'mythical',
       description: 'a mythical creature that breathes fire',
       price: 100,
-      feed: 100
+      feed: 100 
     },
     {
       name: 'phoenix',

@@ -1,0 +1,37 @@
+[
+	{
+		"question": "what is the capital of france?",
+		"choices": ["paris", "london", "berlin", "rome"],
+		"answer": "paris"
+	},
+	{
+		"question": "what is the highest mountain in the world?",
+		"choices": ["mount everest", "k2", "kangchenjunga", "lhotse"],
+		"answer": "mount everest"
+	},
+	{
+		"question": "what is the largest ocean in the world?",
+		"choices": [
+			"pacific ocean",
+			"atlantic ocean",
+			"indian ocean",
+			"arctic ocean"
+		],
+		"answer": "pacific ocean"
+	},
+	{
+		"question": "who painted the mona lisa?",
+		"choices": [
+			"leonardo da vinci",
+			"michelangelo",
+			"raphael",
+			"donatello"
+		],
+		"answer": "leonardo da vinci"
+	},
+	{
+		"question": "what is the chemical symbol for gold?",
+		"choices": ["au", "ag", "fe", "cu"],
+		"answer": "au"
+	}
+]
